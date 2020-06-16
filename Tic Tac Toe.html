@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script>
+    window.addEventListener('load', function () {
+      function Game() {
+        var game = this;
+        this.score={
+          x:0,
+          O:0
+        };
+        var resetButton=document.getElementById('reset').addEventListener('click',function(){
+          game.init();
+        });
+        var newGame=document.getElementById('newGame').addEventListener('click',function(){
+          window.location.reload();
+        });
+
+        this.clickCallBack=null;
+
+        this.init = function () {
+          this.gameTable = [
+            [null, null, null],
+            [null, null, null],
+            [null, null, null],
+          ];
+          this.MaxX = this.gameTable.length - 1;
+          this.MaxY = this.gameTable[0].length - 1;
+          this.cP = {
+            x: null,
+            y: null,
+            value: null,
+            cC: 0
+          };
+          this.xMove = true;
+          var scoreXClassList = document.getElementById('scoreX').classList;
+          scoreXClassList.remove('colorActivePlayer');
+          scoreXClassList.add('colorActivePlayer');
+          document.getElementById('score0').classList.remove('colorActivePlayer');
+          this.listOfTd = document.getElementsByClassName('cell');
+          for (var i = 0; i < this.listOfTd.length; i++) {
+            this.listOfTd.item(i).innerHTML = '';
+          }
+
+        };
+
+
+
+        this.setMove = function (position, value) {
+          var rowY = position.slice(position.search('y'));
+          var rowX = position.replace(rowY, '');
+          this.cP.x = rowX.replace('x', '');
+          this.cP.y = rowY.replace('y', '');
+
+          if (this.gameTable[this.cP.x][this.cP.y] === null) {
+            this.gameTable[this.cP.x][this.cP.y] = value;
+            this.cP.value = value;
+            this.cP.cC++;
+
+            console.log(this.cP.cC);
+
+            return true;
+          }
+          return false;
+        };
+
+        this.column = function () {
+          for (var i = 0; i <= this.MaxY; i++) {
+            if (this.gameTable[this.cP.x][i] !== this.cP.value) {
+              return false
+            }
+          }
+          return true;
+        };
+
+        this.row = function () {
+          for (var i = 0; i <= this.MaxX; i++) {
+            if (this.gameTable[i][this.cP.y] !== this.cP.value) {
+              return false
+            }
+          }
+          return true;
+        };
+
+        this.calcDiagP = function () {
+          var eQ = true;
+          var val = this.gameTable[0][0];
+          for (i = 1; i <= this.MaxY; i++) {
+            eQ = eQ && val == this.gameTable[i][i];
+          }
+          return eQ;
+        };
+
+        this.calcDiagS = function () {
+          var eQ = true;
+          var val = this.gameTable[0][this.MaxY];
+          for (i = 1; i <= this.MaxX; i++) {
+            eQ = eQ && val == this.gameTable[i][this.MaxY - i];
+          }
+          return eQ;
+        };
+
+        this.diag = function () {
+          if (this.cP.x == this.cP.y || ((this.cP.x == 0 || this.cP.x == this.MaxX) && (this.cP.y == 0 || this.cP.y == this.MaxY))) {
+            if (this.MaxX / 2 == this.cP.x && this.cP.x == this.cP.y) {
+              return this.calcDiagP() || this.calcDiagS();
+            }
+            if (this.cP.x == this.cP.y) {
+              return this.calcDiagP();
+            }
+            if ((this.cP.x == 0 || this.cP.x == this.MaxX) && (this.cP.y == 0 || this.cP.y == this.MaxY)) {
+              return this.calcDiagS();
+            }
+          }
+          return false;
+        };
+
+        this.win = function () {
+          return this.column() || this.row() || this.diag();
+
+        };
+
+        this.endGame = function () {
+          var game = this;
+          var message = '';
+          this.deactivateEvents();
+          if (this.win()){
+            message = 'End game winner is ' + game.cP.value ;
+              if(this.cP.value=='X'){
+                this.score.x++;
+              }else {
+                this.score.O++;
+              }
+          }else{
+            message = 'Draw';
+          }
+          setTimeout(function () {
+            alert(message);
+            game.start();
+          }, 100);
+
+          document.getElementById('scoreXGame').innerHTML = this.score.x;
+          document.getElementById('score0Game').innerHTML = this.score.O;
+        };
+
+        this.showNextPlayer = function(){
+          var scoreX= document.getElementById('scoreX');
+          var score0= document.getElementById('score0');
+          scoreX.classList.toggle('colorActivePlayer');
+          score0.classList.toggle('colorActivePlayer');
+        };
+
+        this.cellEventClick = function (event) {
+          var value = this.xMove ? 'X' : '0';
+          if (this.setMove(event.target.id, value)) {
+            event.target.innerHTML = value;
+            if (this.cP.cC >= 5) {
+              this.win() && this.endGame();
+              if (this.cP.cC ==((this.MaxX + 1) * (this.MaxY + 1))) this.endGame();
+            }
+            this.xMove = !this.xMove;
+            this.showNextPlayer();
+          }
+        };
+
+        this.start = function () {
+          this.init();
+          this.activateEvents();
+        };
+
+        this.activateEvents = function () {
+          if (this.clickCallBack==null) return;
+          for (var i = 0; i < this.listOfTd.length; i++) {
+            this.listOfTd.item(i).addEventListener('click', this.clickCallBack);
+          }
+        };
+
+        this.deactivateEvents = function () {
+          if (this.clickCallBack==null) return;
+          for (var i = 0; i < this.listOfTd.length; i++) {
+            this.listOfTd.item(i).removeEventListener('click', this.clickCallBack);
+          }
+        };
+
+      }
+
+      // add eventListner on te button New Game with the new score
+      // upgrade interface game score X and 0
+      // window.location.reload();
+      var game = new Game();
+      game.clickCallBack=function clickCallBack(event) {
+        game.cellEventClick(event);
+      };
+      game.start();
+
+    });
+
+  </script>
+  <style>
+    .cell {
+      width: 100px;
+      height: 100px;
+      text-align: center;
+      font-size:80px;
+      color:#ffffff;
+      background-color: black;
+      border: 3px solid white;
+      border-radius: 10px 10px 10px 10px;
+    }
+
+    #tabel{
+      margin-left:auto;
+      margin-right:auto;
+    }
+
+    p{
+      text-align:center;
+      font-size:50px;
+      margin-bottom: 1px;
+    }
+
+    #score{
+
+
+      border:1px solid black;
+      margin-left:auto;
+      margin-right:auto;
+      margin-bottom: 5px;
+
+    }
+
+  .colorActivePlayer {
+    color: red;
+  }
+
+
+    <
+    img src
+
+    =
+    "../favicon.ico"
+    /
+    ></style>
+</head>
+<body>
+
+<div>
+  <p>Tic Tac Toe</p>
+</div>
+<div>
+  <table id='score'>
+    <tr>
+      <td><button id='newGame'>New Game</button></td>
+      <td><button id='reset'>Reset</button></td>
+    </tr>
+    <tr>
+      <td>Score</td>
+      <td id="scoreX">X</td>
+      <td id="score0">0</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td id='scoreXGame'>0</td>
+      <td id='score0Game'>0</td>
+    </tr>
+</div>
+<table id="tabel">
+  <tr>
+    <td id="x0y0" class="cell"></td>
+    <td id='x1y0' class="cell"></td>
+    <td id="x2y0" class="cell"></td>
+  </tr>
+  <tr>
+    <td id="x0y1" class="cell"></td>
+    <td id="x1y1" class="cell"></td>
+    <td id="x2y1" class="cell"></td>
+  </tr>
+  <tr>
+    <td id="x0y2" class="cell"></td>
+    <td id="x1y2" class="cell"></td>
+    <td id="x2y2" class="cell"></td>
+  </tr>
+</table>
+
+</body>
+</html>
