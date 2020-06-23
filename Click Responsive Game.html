@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+  <title>Click Responsive Game</title>
+</head>
+<style>
+  #clickme{
+    width: 100px;
+    height: 100px;
+    background-color: black;
+    color: red;
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 100px;
+    text-align: center;
+    padding-top; 50px auto;
+  }
+  #gameboard{
+    background-color: lightgrey;
+    border: 1px solid black;
+    height: 600px;
+    width: 800px;
+  }
+  .container{
+    margin: 0px;
+  }
+  #scoreinfo {
+    text-align: cente;
+    font-size: 24px;
+  }
+</style>
+<body>
+<div class="container">
+  <div id="scoreinfo">Start Game</div>
+  <div id="startgame" class="btn btn-primary">Start</div>
+<div id="gameboard">
+  <div id="clickme"></div>
+</div>
+</div>
+
+
+
+
+
+<script>
+  console.log(Date.now());
+  var startTime,endTime,waitTime,gameStatus=false;
+  var startbtn=document.getElementById('startgame');
+  var clickme=document.getElementById('clickme');
+  var scoreinfo=document.getElementById('scoreinfo');
+
+  startbtn.onclick = myFunctionHit;
+  clickme.onclick =myFunctionC;
+
+  function myFunctionHit () {
+    if (!gameStatus){
+      waitTime=Math.random()*500+1000;
+      gameStatus=true;
+      setTimeout(function () {
+        // console.log ('clicked');
+        var top = getRandomInt();
+        var left = getRandomIntLeft();
+        startTime = Date.now();
+        // console.log(top);
+        clickme.style.backgroundColor =('#' + Math.random().toString(16).substr(-6));
+        clickme.style.width= getRandomCube() +'px'
+        clickme.style.height= clickme.style.width
+        clickme.style.top =top+'px';
+        clickme.style.left =left +'px';
+        clickme.style.display ='block';
+      },waitTime)
+    }
+
+  }
+  function getRandomCube(min, max) {
+    min = Math.ceil(30);
+    max = Math.floor(120);
+    return Math.floor(Math.random() * (max - min)) + min
+  }
+
+  function getRandomInt(min, max) {
+    min = Math.ceil(71);
+    max = Math.floor(500);
+    return Math.floor(Math.random() * (max - min)) + min
+  }
+
+  function getRandomIntLeft(min, max) {
+    min = Math.ceil(30);
+    max = Math.floor(700);
+    return Math.floor(Math.random() * (max - min)) + min
+  }
+
+  function myFunctionC () {
+    // console.log (this);
+    gameStatus=false;
+    endTime = Date.now();
+    // document.getElementById('clickme').innerHTML = 'CLICKED';
+    this.style.display ='none';
+    // console.log ('clicked');
+    scoreinfo.innerHTML = (endTime -startTime)/1000 + ' ms ' + ' was youre time';
+    myFunctionHit()
+  }
+
+
+  // scoreboard
+
+
+</script>
+</body>
+</html>
